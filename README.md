@@ -8,19 +8,30 @@ A Flutter app with a to-do list, showcasing some intermediary functionalities.
 
 ----
 
+- SafeArea
+- SizedBox
+- Icon
+- Flexible
+- AlertDialog
 - TextField
     - Decoration
     - Controller
-
 - ElevatedButton
     - onPressed()
-
-- SizedBox
-
-- Icon
-
-- Flexible
-
 - ListView
     - ListTile
     - shrinkWrap
+- ScaffoldMessenger
+    - SnackBar
+
+<br>
+
+### Concepts
+----
+
+- Models
+- Custom Widgets
+- Callback
+- Packages
+    - *intl*
+    - *flutter_slidable*
