@@ -32,6 +32,8 @@ A Flutter app with a to-do list, showcasing some intermediary functionalities.
 - Models
 - Custom Widgets
 - Callback
+- Repositories
 - Packages
     - *intl*
     - *flutter_slidable*
+    - *shared_preferences*

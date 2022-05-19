@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_todo_list/models/task.dart';
+import 'package:flutter_todo_list/repositories/todo_repository.dart';
 import 'package:flutter_todo_list/widgets/todo_list_item.dart';
 
 class TodoListPage extends StatefulWidget {
@@ -11,12 +12,27 @@ class TodoListPage extends StatefulWidget {
 
 class _TodoListPageState extends State<TodoListPage> {
   final TextEditingController taskController = TextEditingController();
+  final TodoRepository todoRepository = TodoRepository();
 
   Color mainColor = const Color(0xff66a832);
+  Color errorColor = const Color(0xff702edb);
 
   List<Task> tasks = [];
   int? deletedTaskPos;
   Task? deletedTask;
+
+  String? errorText;
+
+  @override
+  void initState() {
+    super.initState();
+
+    todoRepository.getTaskList().then((value) {
+      setState(() {
+        tasks = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +45,7 @@ class _TodoListPageState extends State<TodoListPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: TextField(
@@ -46,6 +63,20 @@ class _TodoListPageState extends State<TodoListPage> {
                           ),
                           labelText: 'Adicionar uma tarefa',
                           hintText: 'Ex. Estudar Flutter',
+                          errorText: errorText,
+                          errorStyle: TextStyle(
+                            color: errorColor,
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: errorColor,
+                            ),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: errorColor,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -53,14 +84,26 @@ class _TodoListPageState extends State<TodoListPage> {
                     ElevatedButton(
                       onPressed: () {
                         String task = taskController.text;
+
+                        if (task.isEmpty) {
+                          setState(() {
+                            errorText = 'A tarefa não pode estar vazia!';
+                          });
+                          return;
+                        }
+
                         setState(() {
                           Task newTask = Task(
                             title: task,
                             date: DateTime.now(),
                           );
                           tasks.add(newTask);
+                          errorText = null;
                         });
                         taskController.clear();
+
+                        // Salva a lista localmente
+                        todoRepository.saveTaskList(tasks);
                       },
                       style: ElevatedButton.styleFrom(
                         primary: mainColor,
@@ -120,6 +163,8 @@ class _TodoListPageState extends State<TodoListPage> {
     setState(() {
       tasks.remove(task);
     });
+    // Salva a lista localmente
+    todoRepository.saveTaskList(tasks);
 
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -138,6 +183,8 @@ class _TodoListPageState extends State<TodoListPage> {
           setState(() {
             tasks.insert(deletedTaskPos!, deletedTask!);
           });
+          // Salva a lista localmente
+          todoRepository.saveTaskList(tasks);
         },
       ),
     ));
@@ -176,5 +223,7 @@ class _TodoListPageState extends State<TodoListPage> {
     setState(() {
       tasks.clear();
     });
+    // Salva a lista localmente
+    todoRepository.saveTaskList(tasks);
   }
 }
